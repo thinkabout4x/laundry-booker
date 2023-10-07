@@ -76,6 +76,19 @@ class Booker:
         # Wait for the page to load (table for booking should be visible)
         verify_page_open(self.driver,self.timeout, EC.presence_of_element_located((By.ID, "ctl00_ContentPlaceHolder1_infostatus")), 'Cant go to laundry booking table')
 
+        content_id_base = "//*[@id=\"ctl00_ContentPlaceHolder1_"
+
+        #0 column and row are useless
+        for i in range(7):
+            for j in range(1,8):
+                curr_id = content_id_base+f'{i},'+f'{j},'+'1,'+'\"]'
+                element = self.driver.find_element(By.XPATH, curr_id)
+                title = element.get_attribute("title")
+                if '20:00-21:00 (Vapaa)' == title:
+                    print("found it"+str(i)+str(j))
+
+
+
 
 
 

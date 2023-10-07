@@ -1,3 +1,6 @@
 .pytest_cache/
 laundry_booker/__pycache__/
 tests/__pycache__/
+.vscode/launch.json
+laundry_booker/__pycache__/laundry_booker.cpython-311.pyc
+tests/__pycache__/test_laundry_booker.cpython-311-pytest-7.4.2.pyc
