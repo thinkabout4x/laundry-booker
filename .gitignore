@@ -1,1 +1,3 @@
 .pytest_cache/
+laundry_booker/__pycache__/
+tests/__pycache__/
