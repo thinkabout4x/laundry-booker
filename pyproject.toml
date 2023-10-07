@@ -14,6 +14,9 @@ webdriver-manager = "^4.0.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.2"
 
+[tool.poetry.scripts]
+run_landry_booker = "laundry_booker.scripts.run:main"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
