@@ -7,12 +7,12 @@ uri = "https://ilmarinen.visiontech.fi/Default.aspx"
 login = os.environ['login']
 password = os.environ['password']
 credentials = (login,password)
-# target time for booking in 24 hour format
-target_time = 18
+# target time for booking in string format (title to find on a web page)
+target_time = '20:00-21:00 (Vapaa)'
 # frequency of checking in hours
 check_time_delta = 1
 
 if __name__ == "__main__":
-    sniffer = Booker(uri, credentials, headless=False)
+    sniffer = Booker(uri, credentials, target_time, headless=False)
     sniffer.check()
 

@@ -7,8 +7,8 @@ from selenium.webdriver.common.by import By
 import requests
 
 def verify_page_open(driver, timeout, condition, errormsg):
+    """Verify that web page openes correctly, if not throws timeout exception"""
     try:
-    # Wait for the element with the ID
         WebDriverWait(driver, timeout).until(condition)
     except TimeoutException as e:
         print(errormsg)
@@ -27,6 +27,7 @@ def create_firefox_options(headless):
     return firefox_options
 
 def create_firefox_driver(headless):
+        """Create firefox driver """
         firefox_options = create_firefox_options(headless)
         driver = webdriver.Firefox(
             options=firefox_options,
@@ -34,14 +35,15 @@ def create_firefox_driver(headless):
         return driver
 
 class Booker:
-    def __init__(self, uri, credentials, timeout_delay = 5, headless = True):
+    def __init__(self, uri, credentials,target_time, timeout_delay = 5, headless = True):
         self.driver = create_firefox_driver(headless)
         self.timeout = timeout_delay
         self.uri = uri
         self.credentials = credentials
+        self.target_time = target_time
 
     def open_uri(self):
-
+        """Method to open uri"""
         try:
             with requests.head(self.uri) as response:
                 try:
@@ -58,6 +60,7 @@ class Booker:
         verify_page_open(self.driver,self.timeout, EC.element_to_be_clickable((By.ID, "ctl00_ContentPlaceHolder1_btOK")), 'URL cant be opened, timeout')
 
     def login(self):
+        """Method to login to web page"""
         self.open_uri()
         self.driver.find_element(By.ID, "ctl00_ContentPlaceHolder1_tbUsername").send_keys(self.credentials[0])
         self.driver.find_element(By.ID, "ctl00_ContentPlaceHolder1_tbPassword").send_keys(self.credentials[1])
@@ -67,6 +70,7 @@ class Booker:
         # Wait for the page to load (booking button should be clickable)
 
     def check(self):
+        """Method to check availability of the laundry, by default looks for earliest time"""
         self.login()
         self.driver.find_element(By.LINK_TEXT, "Varaa").click()
         # Wait for the page to load (Pesula button should be clickable)
@@ -76,16 +80,19 @@ class Booker:
         # Wait for the page to load (table for booking should be visible)
         verify_page_open(self.driver,self.timeout, EC.presence_of_element_located((By.ID, "ctl00_ContentPlaceHolder1_infostatus")), 'Cant go to laundry booking table')
 
+        #Run through table to look for apropriate time, using id of the element
         content_id_base = "//*[@id=\"ctl00_ContentPlaceHolder1_"
 
-        #0 column and row are useless
         for i in range(7):
             for j in range(1,8):
                 curr_id = content_id_base+f'{i},'+f'{j},'+'1,'+'\"]'
                 element = self.driver.find_element(By.XPATH, curr_id)
                 title = element.get_attribute("title")
-                if '20:00-21:00 (Vapaa)' == title:
-                    print("found it"+str(i)+str(j))
+                if self.target_time == title:
+                    day = self.driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_lbCalendarDag'+f'{i}').get_attribute("innerHTML").replace('<br>', ' ')
+                    print("Found it! Day: "+f'{day} '+title)
+                    # element.click()
+                    break
 
 
 
