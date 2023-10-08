@@ -74,5 +74,9 @@ if __name__ == "__main__":
     def welcome(message):
         bot.send_message(message.chat.id, "This is a bot to book your Pesula! You need to share credentials to proceed", reply_markup = gen_markup())
 
-        
+
+    # Enable saving next step handlers to file "./.handlers-saves/step.save" with 2 sec delay.
+    bot.enable_save_next_step_handlers(delay=2)
+    bot.load_next_step_handlers()
+
     bot.infinity_polling()
