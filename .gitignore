@@ -7,3 +7,5 @@ tests/__pycache__/test_laundry_booker.cpython-311-pytest-7.4.2.pyc
 .vscode/
 tests/__pycache__/test_laundry_booker.cpython-311-pytest-7.4.2.pyc
 .gitignore
+laundry_booker/__pycache__/laundry_booker.cpython-311.pyc
+tests/__pycache__/test_laundry_booker.cpython-311-pytest-7.4.2.pyc

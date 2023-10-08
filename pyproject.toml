@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.10"
 selenium = "^4.13.0"
 webdriver-manager = "^4.0.1"
+pytelegrambotapi = "^4.14.0"
 
 
 [tool.poetry.group.dev.dependencies]
