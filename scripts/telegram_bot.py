@@ -20,9 +20,17 @@ class User:
 if __name__ == "__main__":
     bot = telebot.TeleBot(token)
 
-    def gen_markup():
+    def authorize_markup():
         markup = InlineKeyboardMarkup()
         markup.add(InlineKeyboardButton("Authorize", callback_data="Authorize"))
+        return markup
+    
+    def aut_user_markup():
+        markup = InlineKeyboardMarkup()
+        markup.row_width = 1
+        markup.add(InlineKeyboardButton("Start looking for booking", callback_data="booking"),
+                   InlineKeyboardButton("Change target time", callback_data="time"),
+                   InlineKeyboardButton("Change data", callback_data="change"))
         return markup
     
     def process_uri_step(message):
@@ -59,7 +67,7 @@ if __name__ == "__main__":
             chat_id = message.chat.id
             user = user_dict[chat_id]
             user.target_time = message.text
-            bot.send_message(chat_id, 'Your data: 1) uri: '+ user.uri + ' 2) Login: '+ user.login + " 3) Password: " + user.password + ' 4) Target time: '+ user.target_time)
+            bot.send_message(chat_id, 'Your data: 1) uri: '+ user.uri + ' 2) Login: '+ user.login + " 3) Password: " + user.password + ' 4) Target time: '+ user.target_time + ' was succesfully added!')
         except Exception as e:
             bot.reply_to(message, 'Can\'t process your target time')
 
@@ -72,7 +80,11 @@ if __name__ == "__main__":
 
     @bot.message_handler(commands=['start', 'help'])
     def welcome(message):
-        bot.send_message(message.chat.id, "This is a bot to book your Pesula! You need to share credentials to proceed", reply_markup = gen_markup())
+        chat_id = message.chat.id
+        if chat_id in user_dict:
+            bot.send_message(message.chat.id, "Hello dear user! What you want to do?", reply_markup = aut_user_markup())
+        else:
+            bot.send_message(message.chat.id, "This is a bot to book your Pesula! You need to share credentials to proceed", reply_markup = authorize_markup())
 
 
     # Enable saving next step handlers to file "./.handlers-saves/step.save" with 2 sec delay.
