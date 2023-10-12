@@ -1,5 +1,5 @@
 import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 import os
 
 #token for bot
@@ -27,6 +27,8 @@ if __name__ == "__main__":
         chat_id = call.message.chat.id   
         user_dict[chat_id].target_time = call.data
         bot.answer_callback_query(call.id, f'Answer is {call.data}')
+        # remove keyboard
+        bot.edit_message_reply_markup(chat_id, call.message.message_id) 
         process_final_step(call.message)
 
     @bot.callback_query_handler(func=lambda call: True)
@@ -39,7 +41,7 @@ if __name__ == "__main__":
             bot.send_message(chat_id, 'Please choose from this options:', reply_markup = book_time_markup())
         if call.data == "Start":
             msg = bot.send_message(chat_id, f'Booking process started! Target time: {user_dict[chat_id].target_time}')
-
+            
     def authorize_markup():
         markup = InlineKeyboardMarkup()
         markup.add(InlineKeyboardButton("Authorize", callback_data="Authorize"))
