@@ -1,23 +1,16 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 import os
+from laundry_booker.user_handler import UserHandler, User
 
 #token for bot
 token = os.environ['token']
 
 options = ['08:00-10:00','10:00-12:00','12:00-14:00','14:00-16:00','16:00-18:00','18:00-20:00','20:00-21:00']
 
-user_dict = {}
 
-class User:
-    def __init__(self, uri):
-        # url for the site to book on
-        self.uri = uri
-        # log and password for site
-        self.login = None
-        self.password = None
-        # target time for booking in string format (title to find on a web page)
-        self.target_time = None
+userhandler = UserHandler(300)
+userhandler.run()
 
 if __name__ == "__main__":
     bot = telebot.TeleBot(token)
@@ -25,7 +18,8 @@ if __name__ == "__main__":
     @bot.callback_query_handler(func=lambda call: call.data in options)
     def options_callback_query(call):
         chat_id = call.message.chat.id   
-        user_dict[chat_id].target_time = call.data
+        # user_dict[chat_id].target_time = call.data
+        userhandler.users[chat_id].target_time = call.data
         bot.answer_callback_query(call.id, f'Answer is {call.data}')
         # remove keyboard
         bot.edit_message_reply_markup(chat_id, call.message.message_id) 
@@ -40,7 +34,12 @@ if __name__ == "__main__":
         if call.data == "Time":
             bot.send_message(chat_id, 'Please choose from this options:', reply_markup = book_time_markup())
         if call.data == "Start":
-            msg = bot.send_message(chat_id, f'Booking process started! Target time: {user_dict[chat_id].target_time}')
+            # msg = bot.send_message(chat_id, f'Booking process started! Target time: {user_dict[chat_id].target_time}')
+            msg = bot.send_message(chat_id, f'Booking process started! Target time: {userhandler.users[chat_id].target_time}')
+            userhandler.start_booking(chat_id)
+        if call.data == "Stop":
+            msg = bot.send_message(chat_id, f'Booking process stopped!')
+            userhandler.stop_booking(chat_id)        
             
     def authorize_markup():
         markup = InlineKeyboardMarkup()
@@ -68,7 +67,7 @@ if __name__ == "__main__":
     def process_uri_enter_login_step(message):
         try:
             chat_id = message.chat.id
-            user_dict[chat_id] = User(message.text)
+            userhandler.users[chat_id] = User(message.text)
             msg = bot.reply_to(message, 'Login for your site:')
             bot.register_next_step_handler(msg, process_login_enter_password_step)
         except Exception as e:
@@ -78,7 +77,7 @@ if __name__ == "__main__":
     def process_login_enter_password_step(message):
         try:
             chat_id = message.chat.id
-            user = user_dict[chat_id]
+            user = userhandler.users[chat_id]
             user.login = message.text
             msg = bot.reply_to(message, 'Password for your site:')
             bot.register_next_step_handler(msg, process_password_enter_time_step)
@@ -89,7 +88,7 @@ if __name__ == "__main__":
     def process_password_enter_time_step(message):
         try:
             chat_id = message.chat.id
-            user = user_dict[chat_id]
+            user = userhandler.users[chat_id]
             user.password = message.text
             bot.reply_to(message, 'Target booking time:')
             bot.send_message(chat_id, 'Please choose from this options:', reply_markup = book_time_markup())
@@ -100,7 +99,7 @@ if __name__ == "__main__":
     def process_final_step(message):
         try:
             chat_id = message.chat.id
-            user = user_dict[chat_id]
+            user = userhandler.users[chat_id]
             bot.send_message(chat_id, 'Your data: 1) uri: '+ user.uri + ' 2) Login: '+ user.login + " 3) Password: " + user.password + ' 4) Target time: '+ user.target_time + ' was succesfully added!')
             welcome(message)
         except Exception as e:
@@ -110,7 +109,7 @@ if __name__ == "__main__":
     @bot.message_handler(commands=['start', 'help'])
     def welcome(message):
         chat_id = message.chat.id
-        if chat_id in user_dict:
+        if chat_id in userhandler.users:
             bot.send_message(message.chat.id, "Hello dear user! What you want to do?", reply_markup = aut_user_markup())
         else:
             bot.send_message(message.chat.id, "This is a bot to book your Pesula! You need to share credentials to proceed", reply_markup = authorize_markup())
