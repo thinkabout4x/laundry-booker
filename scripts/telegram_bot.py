@@ -1,5 +1,5 @@
 import telebot
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import os
 from laundry_booker.user_handler import UserHandler, User
 
@@ -9,16 +9,14 @@ token = os.environ['token']
 options = ['08:00-10:00','10:00-12:00','12:00-14:00','14:00-16:00','16:00-18:00','18:00-20:00','20:00-21:00']
 
 
-userhandler = UserHandler(300)
-userhandler.run()
-
 if __name__ == "__main__":
+    userhandler = UserHandler(15)
+    userhandler.run()
     bot = telebot.TeleBot(token)
 
     @bot.callback_query_handler(func=lambda call: call.data in options)
     def options_callback_query(call):
         chat_id = call.message.chat.id   
-        # user_dict[chat_id].target_time = call.data
         userhandler.users[chat_id].target_time = call.data
         bot.answer_callback_query(call.id, f'Answer is {call.data}')
         # remove keyboard
@@ -34,7 +32,6 @@ if __name__ == "__main__":
         if call.data == "Time":
             bot.send_message(chat_id, 'Please choose from this options:', reply_markup = book_time_markup())
         if call.data == "Start":
-            # msg = bot.send_message(chat_id, f'Booking process started! Target time: {user_dict[chat_id].target_time}')
             msg = bot.send_message(chat_id, f'Booking process started! Target time: {userhandler.users[chat_id].target_time}')
             userhandler.start_booking(chat_id)
         if call.data == "Stop":

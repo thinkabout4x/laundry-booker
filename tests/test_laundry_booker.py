@@ -4,20 +4,22 @@ import requests
 from selenium.common.exceptions import TimeoutException
 
 from laundry_booker.laundry_booker import Booker
+from laundry_booker.user_handler import UserHandler,User
 
+userhandler = UserHandler(15)
 
 class TestClass:
-    instance = Booker()
 
-    @pytest.mark.parametrize("uri,expectation", [("https://github.com/____", pytest.raises(requests.exceptions.HTTPError)), ("https://gitxxxxxhub.com/", pytest.raises(requests.exceptions.ConnectionError)), ("https://github.com/", does_not_raise()), ("https://ilmarinen.visiontech.fi/Default.aspx", does_not_raise())])
-    def test_url_connect(self, uri, expectation):
+    @pytest.mark.parametrize("user,expectation", [(User("https://github.com/____"), pytest.raises(requests.exceptions.HTTPError)), (User("https://gitxxxxxhub.com/"), pytest.raises(requests.exceptions.ConnectionError)), (User("https://github.com/"), pytest.raises(TimeoutException)), (User("https://ilmarinen.visiontech.fi/Default.aspx"), does_not_raise())])
+    def test_url_connect(self, user, expectation):
+        instance = Booker(user)
         with expectation:
-            self.instance.open_uri(uri)
+            instance.open_uri()
 
-    @pytest.mark.parametrize("uri, credentials,expectation", [("https://ilmarinen.visiontech.fi/Default.aspx",("login", "password"), pytest.raises(TimeoutException))])
-    def test_login(self, uri, credentials, expectation):
+    @pytest.mark.parametrize("user,expectation", [(User("https://ilmarinen.visiontech.fi/Default.aspx","login", "password"), pytest.raises(TimeoutException))])
+    def test_login(self, user, expectation):
+        instance = Booker(user)
         with expectation:
-            self.instance.login(uri,credentials)
-    
-    
+            instance.login()
+
     

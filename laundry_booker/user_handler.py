@@ -1,7 +1,6 @@
 import asyncio
 from threading import Thread
-
-
+from laundry_booker.laundry_booker import Booker
 
 class AsyncLoopThread(Thread):
     '''thread class to run asynio loop forever, because it is blocking main thread'''
@@ -15,14 +14,14 @@ class AsyncLoopThread(Thread):
 
 class User:
     '''class to represent user data'''
-    def __init__(self, uri):
+    def __init__(self, uri, login = None, password = None, target_time = None):
         # url for the site to book on
         self.uri = uri
         # log and password for site
-        self.login = None
-        self.password = None
+        self.login = login
+        self.password = password
         # target time for booking in string format (title to find on a web page)
-        self.target_time = None
+        self.target_time = target_time
         # booking state
         self.isbooked = False
 
@@ -31,14 +30,13 @@ class UserHandler:
     users - dict for users with chat_id as a key
     tasks - dict for tasks from users with chat_id as a key
     thread - thread to run asyncio loop
-    delay - time period through which booking process will be called again
+    delay - time period through which booking process will be called again, minutes
     '''
     def __init__(self, delay):
-
         self.users = {}
         self.tasks = {}
         self.thread = AsyncLoopThread()
-        self.delay = delay
+        self.delay = delay*60
     
     def append_user(self, chat_id, uri):
         self.users[chat_id] = User(uri)
@@ -46,12 +44,13 @@ class UserHandler:
     def run(self):
         self.thread.start()
     
-    async def __booking(self, chat_id):
+    async def __booking(self, chat_id) -> True:
         print(f'booking for chat_id: {chat_id} was started')
         try:
+            booker = Booker(self.users[chat_id])
             while True:
-                pass
-                print('booooooking')
+                if booker.check():
+                    return True
                 await asyncio.sleep(self.delay)
         except asyncio.CancelledError:
             print(f'booking for chat_id: {chat_id} was cancelled')
