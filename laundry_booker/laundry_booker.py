@@ -3,6 +3,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
+from dataclasses import dataclass
 import requests
 
 def verify_page_open(driver, timeout, condition, errormsg):
@@ -32,6 +33,16 @@ def create_firefox_driver(headless):
             options=firefox_options,
         )
         return driver
+
+@dataclass
+class Result():
+    '''class to represent result of booking'''
+    # booking state
+    isbooked: True
+    # day of booking
+    day: str
+    # time of booking
+    time: str
 
 class Booker:
     def __init__(self, user, timeout_delay = 5, headless = True):
@@ -92,6 +103,6 @@ class Booker:
                     day = self.driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_lbCalendarDag'+f'{i}').get_attribute("innerHTML").replace('<br>', ' ')
                     print("Found it! Day: "+f'{day} '+title)
                     # element.click()
-                    return True
+                    return Result(True, day, self.user.target_time)
                 
         return False

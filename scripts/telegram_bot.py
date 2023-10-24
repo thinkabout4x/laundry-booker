@@ -33,7 +33,15 @@ if __name__ == "__main__":
             bot.send_message(chat_id, 'Please choose from this options:', reply_markup = book_time_markup())
         if call.data == "Start":
             msg = bot.send_message(chat_id, f'Booking process started! Target time: {userhandler.users[chat_id].target_time}')
-            userhandler.start_booking(chat_id)
+            result = userhandler.start_booking(chat_id)
+            if result is not None:
+                if result.isbooked:
+                    bot.send_message(chat_id, f'Successfully book time for you! Day: {result.day} Target time: {result.time}')
+                else:
+                    bot.send_message(chat_id, f'Didnt book time, try later...')
+            else:
+                bot.send_message(chat_id, f'Something went wrong with your booking, please check your input data')
+                welcome(call.message)
         if call.data == "Stop":
             msg = bot.send_message(chat_id, f'Booking process stopped!')
             userhandler.stop_booking(chat_id)        

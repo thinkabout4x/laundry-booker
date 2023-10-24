@@ -1,6 +1,7 @@
 import asyncio
 from threading import Thread
-from laundry_booker.laundry_booker import Booker
+from dataclasses import dataclass
+from laundry_booker.laundry_booker import Booker, Result
 
 def print_amount_of_tasks(tasks):
     print(f'amount of active tasks: {len(tasks)}')
@@ -15,18 +16,16 @@ class AsyncLoopThread(Thread):
         asyncio.set_event_loop(self.loop)
         self.loop.run_forever()
 
+@dataclass
 class User:
     '''class to represent user data'''
-    def __init__(self, uri, login = None, password = None, target_time = None):
-        # url for the site to book on
-        self.uri = uri
-        # log and password for site
-        self.login = login
-        self.password = password
-        # target time for booking in string format (title to find on a web page)
-        self.target_time = target_time
-        # booking state
-        self.isbooked = False
+    # url for the site to book on
+    uri: str
+    # log and password for site
+    login: str = None
+    password: str = None
+    # target time for booking in string format (title to find on a web page)
+    target_time: str = None
 
 class UserHandler:
     '''Class to handle user connections
@@ -56,8 +55,9 @@ class UserHandler:
         try:
             booker = Booker(self.users[chat_id])
             while True:
-                if booker.check():
-                    return True
+                result = booker.check()
+                if result is not None:
+                    return result
                 await asyncio.sleep(self.delay)
         except asyncio.CancelledError:
             print(f'booking for chat_id: {chat_id} was cancelled')
@@ -69,6 +69,7 @@ class UserHandler:
 
     def start_booking(self, chat_id):
         self.tasks[chat_id] = asyncio.run_coroutine_threadsafe(self.__booking(chat_id),self.thread.loop)
+        return self.tasks[chat_id].result()
     
     def stop_booking(self, chat_id):
         self.tasks[chat_id].cancel()
