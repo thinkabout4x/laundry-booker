@@ -38,7 +38,7 @@ def create_firefox_driver(headless):
 class Result():
     '''class to represent result of booking'''
     # booking state
-    isbooked: True
+    isbooked: bool
     # day of booking
     day: str
     # time of booking
