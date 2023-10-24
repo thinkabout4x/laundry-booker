@@ -102,7 +102,7 @@ class Booker:
                 if target_time == title:
                     day = self.driver.find_element(By.ID, 'ctl00_ContentPlaceHolder1_lbCalendarDag'+f'{i}').get_attribute("innerHTML").replace('<br>', ' ')
                     print("Found it! Day: "+f'{day} '+title)
-                    # element.click()
+                    element.click()
                     return Result(True, day, self.user.target_time)
                 
         return False
