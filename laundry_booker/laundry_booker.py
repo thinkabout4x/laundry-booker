@@ -104,5 +104,3 @@ class Booker:
                     print("Found it! Day: "+f'{day} '+title)
                     element.click()
                     return Result(True, day, self.user.target_time)
-                
-        return False
