@@ -5,8 +5,6 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 import requests
 
-# from laundry_booker.user_handler import User
-
 def verify_page_open(driver, timeout, condition, errormsg):
     """Verify that web page openes correctly, if not throws timeout exception"""
     try:

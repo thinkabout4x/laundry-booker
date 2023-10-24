@@ -2,6 +2,9 @@ import asyncio
 from threading import Thread
 from laundry_booker.laundry_booker import Booker
 
+def print_amount_of_tasks(tasks):
+    print(f'amount of active tasks: {len(tasks)}')
+
 class AsyncLoopThread(Thread):
     '''thread class to run asynio loop forever, because it is blocking main thread'''
     def __init__(self):
@@ -40,12 +43,16 @@ class UserHandler:
     
     def append_user(self, chat_id, uri):
         self.users[chat_id] = User(uri)
+
+    def remove_task(self, chat_id):
+        self.tasks.pop(chat_id)
     
     def run(self):
         self.thread.start()
     
-    async def __booking(self, chat_id) -> True:
+    async def __booking(self, chat_id):
         print(f'booking for chat_id: {chat_id} was started')
+        print_amount_of_tasks(self.tasks)
         try:
             booker = Booker(self.users[chat_id])
             while True:
@@ -54,7 +61,12 @@ class UserHandler:
                 await asyncio.sleep(self.delay)
         except asyncio.CancelledError:
             print(f'booking for chat_id: {chat_id} was cancelled')
-        
+        except Exception:
+            print(f'something went wrong with booking for chat: {chat_id}')
+        finally:
+            self.remove_task(chat_id)
+            print_amount_of_tasks(self.tasks)
+
     def start_booking(self, chat_id):
         self.tasks[chat_id] = asyncio.run_coroutine_threadsafe(self.__booking(chat_id),self.thread.loop)
     
