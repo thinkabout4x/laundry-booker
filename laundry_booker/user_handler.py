@@ -1,7 +1,7 @@
 import asyncio
 from threading import Thread
 from dataclasses import dataclass
-from laundry_booker.laundry_booker import Booker, Result
+from laundry_booker.laundry_booker import Booker
 
 def print_amount_of_tasks(tasks):
     print(f'amount of active tasks: {len(tasks)}')
