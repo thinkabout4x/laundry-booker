@@ -1,7 +1,7 @@
 import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 import os
-from laundry_booker.user_handler import UserHandler
+from laundry_booker.user_handler import UserHandler, User
 
 #token for bot
 token = os.environ['token']
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     def process_uri_enter_login_step(message: Message):
         try:
             chat_id = message.chat.id
-            userhandler.append_user(chat_id, message.text)
+            userhandler.append_user(chat_id, User(message.text))
             msg = bot.reply_to(message, 'Login for your site:')
             bot.register_next_step_handler(msg, process_login_enter_password_step)
         except Exception as e:

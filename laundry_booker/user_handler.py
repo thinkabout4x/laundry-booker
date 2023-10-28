@@ -40,8 +40,8 @@ class UserHandler:
         self.thread = AsyncLoopThread()
         self.delay = delay*60
     
-    def append_user(self, chat_id, uri):
-        self.users[chat_id] = User(uri)
+    def append_user(self, chat_id, user):
+        self.users[chat_id] = user
 
     def remove_task(self, chat_id):
         self.tasks.pop(chat_id)
