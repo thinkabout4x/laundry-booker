@@ -26,11 +26,29 @@ def create_firefox_options(headless):
     firefox_options.set_preference("browser.download.manager.showWhenStarting", False)
     return firefox_options
 
+def create_chrome_options(headless):
+    """Create a chrome profile that saves downloads to directory
+    """
+    chrome_options = webdriver.ChromeOptions()
+    if headless:
+        chrome_options.add_argument("-headless")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--no-sandbox")
+    return chrome_options
+
 def create_firefox_driver(headless):
         """Create firefox driver """
         firefox_options = create_firefox_options(headless)
         driver = webdriver.Firefox(
             options=firefox_options,
+        )
+        return driver
+
+def create_chrome_driver(headless):
+        """Create chrome driver """
+        chrome_options = create_chrome_options(headless)
+        driver = webdriver.Chrome(
+            options=chrome_options,
         )
         return driver
 
@@ -45,8 +63,11 @@ class Result():
     time: str
 
 class Booker:
-    def __init__(self, user, timeout_delay = 5, headless = True):
-        self.driver = create_firefox_driver(headless)
+    def __init__(self, user, timeout_delay = 5, headless = True, isfirefox = True):
+        if isfirefox:
+            self.driver = create_firefox_driver(headless)
+        else:
+            self.driver = create_chrome_driver(headless)
         self.timeout = timeout_delay
         self.user = user
 
